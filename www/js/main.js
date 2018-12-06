@@ -12,6 +12,7 @@ var HOHOANGLIEN = {
     imageSizes: [],
     searchString: "",
     mode: "movie",
+    currentPage: 0, //home=0, search=1, recommend=2
     staleDataTimeOut: 3600, // 1 hour
 
     init: function () {
@@ -33,10 +34,8 @@ var HOHOANGLIEN = {
                 HOHOANGLIEN.startSearch(); // code for enter
             }
         });
-        //Home button
-        document.querySelector(".homeButtonDiv").addEventListener("click", function () {
-            location.reload();
-        });
+        //Back button
+        document.querySelector(".backButtonDiv").addEventListener("click", HOHOANGLIEN.goBack);
 
         document.querySelector(".optionButtonDiv").addEventListener("click", function () {
             if (HOHOANGLIEN.mode == "tv") {
@@ -75,6 +74,30 @@ var HOHOANGLIEN = {
         });
     },
 
+    goBack: function () {
+        HOHOANGLIEN.display(--HOHOANGLIEN.currentPage);
+    },
+
+    display: function (page) {
+        switch (page) {
+            case 0:
+                document.getElementById("back-button").style.display = "none";
+                location.reload();
+                break;
+            case 1:
+                document.getElementById("back-button").style.display = "block";
+                document.querySelector("#search-results").style.display = "block";
+                document.querySelector("#recommend-results").style.display = "none";
+                break;
+            case 2:
+                document.getElementById("back-button").style.display = "block";
+                document.querySelector("#search-results").style.display = "none";
+                document.querySelector("#recommend-results").style.display = "block";
+                break;
+            default:
+                break;
+        }
+    },
     getLocalStorageData: function () {
         if (localStorage.getItem("mode")) {
             HOHOANGLIEN.mode = localStorage.getItem("mode");
@@ -142,11 +165,15 @@ var HOHOANGLIEN = {
         }
 
         //reset any existing page data 
+        HOHOANGLIEN.resetData();
+        HOHOANGLIEN.getSearchResults(HOHOANGLIEN.searchString);
+    },
+
+    resetData: function () {
         document.querySelector("#search-results>.content").textContent = "";
         document.querySelector("#search-results>.title").textContent = "";
         document.querySelector("#recommend-results>.content").textContent = "";
         document.querySelector("#recommend-results>.title").textContent = "";
-        HOHOANGLIEN.getSearchResults(HOHOANGLIEN.searchString);
     },
 
     // called from startSearch()
@@ -161,9 +188,9 @@ var HOHOANGLIEN = {
                 console.log(data);
                 HOHOANGLIEN.createPage(data);
                 //  navigate to "results";
-                HOHOANGLIEN.navigation();
-                document.querySelector("#search-results").style.display = "block";
-                document.querySelector("#recommend-results").style.display = "none";
+                HOHOANGLIEN.currentPage = 1; //search
+                HOHOANGLIEN.display(HOHOANGLIEN.currentPage);
+                console.log();
             })
             .catch(error => console.log(error));
     },
@@ -212,8 +239,6 @@ var HOHOANGLIEN = {
             let videoDate = document.createElement("p");
             let videoRating = document.createElement("p");
             let videoOverview = document.createElement("p");
-
-
 
             // set up image source URL
             if (movie.poster_path) {
@@ -271,9 +296,9 @@ var HOHOANGLIEN = {
     getRecommendations: function (e) {
         console.log(this);
         console.log(e.target);
-        let movieTitle = this.getAttribute("data-title");
-        HOHOANGLIEN.searchString = movieTitle;
-        document.getElementById("search-input").value = HOHOANGLIEN.searchString;
+        //        let movieTitle = this.getAttribute("data-title");
+        //        HOHOANGLIEN.searchString = movieTitle;
+        //        document.getElementById("search-input").value = HOHOANGLIEN.searchString;
         let movieID = this.getAttribute("data-id");
         //        console.log("you clicked: " + movieTitle + " " + movieID);
 
@@ -285,17 +310,17 @@ var HOHOANGLIEN = {
                 console.log(data);
 
                 //  create the page from data
-                HOHOANGLIEN.createPageRecommendation(data);
-                //  navigate to "results";
-                document.querySelector("#search-results").style.display = "none";
-                document.querySelector("#recommend-results").style.display = "block";
+                HOHOANGLIEN.createPageRecommendation(data, this.getAttribute("data-title"));
+                //  navigate to "recommend";
+                HOHOANGLIEN.currentPage = 2;
+                HOHOANGLIEN.display(HOHOANGLIEN.currentPage);
             })
             .catch(error => console.log(error));
         window.scrollTo(0, 0);
 
     },
 
-    createPageRecommendation: function (data) {
+    createPageRecommendation: function (data, movieTitle) {
         let content = document.querySelector("#recommend-results>.content");
         let title = document.querySelector("#recommend-results>.title");
 
@@ -304,12 +329,12 @@ var HOHOANGLIEN = {
         title.innerHTML = "";
 
         if (data.total_results == 0) {
-            message.innerHTML = `No recommendations found for "${HOHOANGLIEN.searchString}"`;
+            message.innerHTML = `No recommendations found for "${movieTitle}"`;
         } else {
             if (data.total_pages == 1) {
-                message.innerHTML = `${data.total_results} from a total of ${data.total_results} for "${HOHOANGLIEN.searchString}". <br> Click on a title to get recommendations.`;
+                message.innerHTML = `${data.total_results} from a total of ${data.total_results} for "${movieTitle}". <br> Click on a title to get recommendations.`;
             } else {
-                message.innerHTML = `Recommendations 1-20 from a total of ${data.total_results} for "${HOHOANGLIEN.searchString}". <br> Click on a title to get recommendations.`;
+                message.innerHTML = `Recommendations 1-20 from a total of ${data.total_results} for "${movieTitle}". <br> Click on a title to get recommendations.`;
             }
         }
         title.appendChild(message);
@@ -324,11 +349,6 @@ var HOHOANGLIEN = {
         cardList.forEach(function (item) {
             item.addEventListener("click", HOHOANGLIEN.getRecommendations);
         });
-
-    },
-
-    navigation: function () {
-        document.getElementById("home-button").style.display = "block";
 
     },
 
