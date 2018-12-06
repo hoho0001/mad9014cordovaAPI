@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Movie Recommendations</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap:   https://ssl.gstatic.com;
+    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; 
+    font-src 'self' data: https://fonts.gstatic.com https://fonts.googleapis.com;
+    script-src 'self' 'unsafe-eval';
+    connect-src 'self' ws: https://api.themoviedb.org/3/;
+    img-src 'self' data: content: https://image.tmdb.org;">
+    <link rel="stylesheet" href="css/main.css" />
+</head>
+
+<body>
+    <div class="overlay"></div>
+    <div class="modal">
+        <!-- content to show the user. Often this will contain a form -->
+        <form class="searchType">
+            <p>Preferences</p>
+            <div class="radioType"><input type="radio" name="type" value="movie" class="type">Movie
+                <input type="radio" name="type" value="tv" class="type">TV</div>
+            <button id="btnClose" title="Close without saving">Close</button>
+            <button id="btnSave" title="Save your choice">Save</button>
+        </form>
+    </div>
+    <h2 class="txtHeader">Movie Recommendations</h2>
+    <div id="searchForm">
+        <div class="form homeButtonDiv">
+            <img id="home-button" alt="Home Button" title="Home" src="img/home-md.svg" class="iconic iconic-md" />
+        </div>
+
+        <div class="form"><input type="text" id="search-input" placeholder="Enter search data" /></div>
+        <div class="form optionButtonDiv">
+            <img id="option-button" alt="Option" title="Choose category for searching" data-src="img/cogs-md.svg" class="iconic iconic-md" />
+        </div>
+        <div class="form searchButtonDiv">
+            <img id="search-button" alt="Search" title="Search" data-src="img/magnifying-glass.svg" class="iconic iconic-md" />
+        </div>
+    </div>
+
+    <main>
+        <div class="page" id="search-results">
+            <section class="title"></section>
+            <section class="content flex-container"></section>
+        </div>
+
+        <div class="page" id="recommend-results">
+            <section class="title"></section>
+            <section class="content flex-container"></section>
+        </div>
+    </main>
+    <div class="attribution">
+        <img src="img/powered-by-square-green.svg" alt="TMDb logo" title="TMDb Logo" />
+    </div>
+    <script src="cordova.js"></script>
+    <script src="js/iconic.min.js"></script>
+    <script src="js/key.js"></script>
+    <script src="js/main.js"></script>
+</body>
+
+</html>
